@@ -1,0 +1,403 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>ROWS | phila.gov</title>
+    <link rel='icon' type='image/x-icon' href="//cityofphiladelphia.github.io/patterns/images/favicon.ico">
+    <meta name="description" content="">
+
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <!--Ionicons are optional-->
+    <link rel="stylesheet" href="//code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+
+    <!--pattern stylesheet includes foundation css -->
+    <link rel="stylesheet" href="//cityofphiladelphia.github.io/patterns/dist/0.8.1/css/patterns.css">
+
+    <link rel="canonical" href="">
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    
+    <!--Our custom stylesheet for additional tweaking-->
+    <link rel="stylesheet" href="css/streets.css">
+    <!--Our custom javascript-->
+    <script src="js/login.js"></script>
+    <script src="js/accountmanage.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/createrequest.js"></script>
+    <script src="js/cancelrequest.js"></script>
+    <script src="js/parsley.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js"></script>
+    <script>
+      function initialize() {
+        var mapProp = {
+          center:new google.maps.LatLng(39.9530121,-75.1678984),
+          zoom:3,
+          mapTypeId:google.maps.MapTypeId.ROADMAP
+        };
+        var map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
+      }
+      google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+  </head>
+
+  <body>
+
+    <!-- Google Tag Manager [phila.gov] -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MC6CR2"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-MC6CR2');</script>
+    <!-- End Google Tag Manager --> 
+
+
+    <div class="site" id="page">
+      <!-- Begin header -->
+      <header data-swiftype-index='false' class="site-header app" role="banner">
+        <div class="row">
+          <div class="small-24 medium-24 column">
+            <a href="http://alpha.phila.gov"><img src="//cityofphiladelphia.github.io/patterns/images/city-of-philadelphia-logo.png" class="logo no-scale" alt="City of Philadelphia"></a>
+            <h1 class="page-title"><a href="https://preview.c9.io/akennel/rows/index.html">Street Closure Request</a></a></h1>
+          </div>
+        </div>
+      </header>
+      <!-- End header -->
+      <div class="row">
+        <div class="small-24 columns">
+          <div class="divider"></div>
+        </div>
+      </div>
+      <!-- Status Modal Dialog-->
+      <!-- Modal Pop-up used to display feedback-->
+      <div id="statusMessageModal" class="reveal-modal" data-reveal aria-labelledby="modal-title" aria-hidden="true" role="dialog">
+        <h1 id="modal-title">Sucess!</h1>
+        <p id="modal-text">A paragraph tag. You can basically put anything in here.</p>
+        <a class="close-reveal-modal" aria-label="Close">&#215;</a>
+      </div>
+      
+      
+      <!-- Start of Login Page-->
+      <!-- This is a single page app, we use hidden divs-->
+      <!--to update the interface-->
+      <div class="row">
+        <div id="LoginPage" class="large-12 columns">
+          <br>
+          <div id="SelectCompanySection">
+            <h2>Simple 3-Step Secure Login</h2>
+            <h3>Step 1 - Select your company.</h3>
+            <select id="CompanySearchSelect" onchange="GetContactsForAccount()"></select>
+            Can't find your company? <a href="newcompany.html">Register your company.</a>
+            <br>
+          </div>
+          <br><br>
+          <div id="SelectContactSection" style="display: none">
+            <h3>Step 2 - Select your Login Name.</h3>
+            <table id="ContactList"></table>
+            Don't see your name listed? Please ask one of the existing contacts to register you.<br>
+          </div>
+          <div id="EnterCodeSection" style="display: none" data-parsley-validate>
+            <br>
+            <strong>Step 3 - Enter your security code.</strong>
+            <input type="text" id="CodeInput" data-parsley-group="login" required> 
+            Use the Get Code button to have a new security code emailed to you. Security Codes are valid for 1 day.<br><br>
+            <button type="submit" onclick="VerifyCode()">Login</button>
+          </div>
+          <div id="BadCode" style="display: none">
+            <strong>Invalid Security Code. Please check your email and try again.</strong>
+          </div>
+        </div>
+        <!-- Page ends just above the Footer-->
+      <!-- END of Login Page-->
+      
+      <!-- Start of Success Message Block-->
+      <div id="Success" style="display:none">
+        <h3 id="SuccessMessage"></h3>
+      </div>
+      <!--End of Success Message Block-->
+      
+      <!-- Start of Account/Contact Header-->
+      <!-- Header displayed at top of every page once logged in-->
+      <!-- Shows information about company and current user-->
+      <div id="AccountContactHeader" class="marg-top-20" style="display: none">
+        <div class="large-24 columns">
+          <div id="AccountDetails">  
+            <div id="AccountHeader" class="background-color row details">
+              <h3 class="medium-23 columns" style="margin-top: 5px">Company Information</h3>
+              <div class="medium-1 columns"><i class="fa fa-pencil" onclick='ShowAccountContactEdit("Account")' style="margin-top: 5px"></i></div>
+            </div>
+            <div class="row details background-color">
+              <h4 class="medium-17 columns">Company Name<p id="DisplayCompanyName"></p></h4>
+              <h4 class="medium-7 columns">Company Phone<p id="DisplayCompanyPhone"></p></h4>
+              <h4 class="medium-17 columns">Web Site<p id="DisplayCompanyWeb"></p></h4>
+              <h4 class="medium-7 columns">Company Fax<p id="DisplayCompanyFax"></p></h4>
+              <h4 class="medium-12 columns">Address<p id="DisplayCompanyAddress"></p></h4>
+              <h4 class="medium-5 columns">City<p id="DisplayCompanyCity"></p></h4>
+              <h4 class="medium-2 columns">State<p id="DisplayCompanyState"></p></h4>
+              <h4 class="medium-5 columns">Zip<p id="DisplayCompanyZip"></p></h4>
+            </div>
+          </div>  
+          <!--Start of Account Edit-->
+          <div id="AccountDetailsEdit" class="row details" style="display: none" data-parsley-validate>
+            <h3 class="medium-24 columns">Change Company Information</h3>
+            <label class="medium-12 columns">Company Name: <input type="text" id="CompanyName" class="CompanyName" data-parsley-group="accountEdit" required></label>
+      
+            <label class="medium-12 columns">Phone: <input type="text" id="CompanyPhone" class="CompanyPhone" data-parsley-group="accountEdit" required></label>
+            <label class="medium-12 columns">Web Site: <input type="text" id="CompanyWeb" class="CompanyWeb" data-parsley-group="accountEdit" data-parsley-type="url" required></label>
+            <label class="medium-12 columns">Fax: <input type="text" id="CompanyFax" class="CompanyFax" ></label>
+          
+            <label class="medium-12 columns">Address: <input type="text" id="CompanyAddress" class="CompanyAddress" data-parsley-group="accountEdit" required ></label>
+        
+            <label class="medium-5 columns">City: <input type="text" id="CompanyCity" class="CompanyAddress" data-parsley-group="accountEdit" required></label>
+            <label class="medium-2 columns">State: <input type="text" id="CompanyState" class="CompanyAddress" data-parsley-group="accountEdit" required></label>
+            <label class="medium-5 columns">Zip: <input type="text" id="CompanyZip" class="CompanyAddress" data-parsley-group="accountEdit" required></label>
+            <div class="medium-24 columns marg-top-20"><button onclick='SubmitChangeRequest("Account")'>Request Updates</button> 
+              <button onclick='HideAccountContactEdit("Account")'>Cancel</button>
+            </div>
+          </div>
+          <!--End of Account Edit-->
+          <div id="UserDetails">
+            <div id="UserHeader" class="row background-color details">
+              <h3 class="medium-23 columns">My Account Information</h3>
+              <div class="medium-1 columns"><i class="fa fa-pencil" onclick='ShowAccountContactEdit("Contact")'></i></div>
+
+                <h4 class="medium-12 column">Name<p id="DisplayUserName"></p></h4>
+                <h4 class="medium-5 column">Phone<p id="DisplayUserPhone"></p></h4>
+                <h4 class="medium-7 column">Email<p id="DisplayUserEmail"></p></h4>
+
+            </div>
+          </div>
+          <!--Start of Contact Edit-->
+          <div id="UserDetailsEdit" class="row details" style="display: none" data-parsley-validate>
+            <h3 class="medium-24 columns">Change Account Information</h3>
+            <label class="medium-6 column">First Name: <input type="text" id="FirstName" class="FirstName" data-parsley-group="contactEdit" required ></label>
+            <label class="medium-6 column">Last Name: <input type="text" id="LastName" class="LastName" data-parsley-group="contactEdit" required ></label>
+            <label class="medium-5 column">Phone: <input type="text" id="UserPhone" class="UserPhone" ></label>
+            <label class="medium-7 column">Email: <input type="text" id="UserEmail" class="UserEmail" data-parsley-type="email" data-parsley-group="contactEdit" required ></label>
+            <div class="medium-24 columns marg-top-20">
+              <button onclick='SubmitChangeRequest("Contact")'>Request Updates</button> 
+              <button onclick='HideAccountContactEdit("Contact")'>Cancel</button>
+            </div>
+          </div>
+          <!--End of Contact Edit-->
+          <!--Start of Contact Create-->
+          <div id="ContactCreate" class="row details marg-top-20" style="display: none" data-parsley-validate>
+            <label class="medium-6 column">First Name: <input type="text" id="FirstNameCreate" class="FirstName" data-parsley-group="contactCreate" required></label>
+            <label class="medium-6 column">Last Name: <input type="text" id="LastNameCreate" class="LastName" data-parsley-group="contactCreate" required></label>
+            <label class="medium-5 column">Phone: <input type="text" id="UserPhoneCreate" class="UserPhone" ></label>
+            <label class="medium-7 column">Email: <input type="text" id="UserEmailCreate" class="UserEmail" data-parsley-group="contactCreate" data-parsley-type="email" required></label>
+            <div class="medium-24 columns marg-top-20">
+              <button onclick='CreateContact()'>Request Contact</button> 
+              <button onclick='HideContactCreate()'>Cancel</button>
+            </div>
+          </div>
+          <!--End of Contact Create-->
+        </div>
+      </div>
+      <!-- End of Account/Contact Header-->
+
+      <!-- Start of Saving Page-->
+      <!--Status page that shows results of save-->
+      <div id="SavingPage" class="row" style="display: none">
+        <div class="medium-24 columns">
+          <div id="EventHeader">
+            <strong>Saving your changes.</strong><br>Please be sure to keep a copy of this page for your records.<br>
+            You can refer to the information provided below to check on the status of your request. A confirmation email will be sent to the provided contact.<br>
+          </div>
+          <ul id="SavingStatusList">
+          </ul>
+          <br>
+          <button onclick="ShowAddResourcePage()" style="display:none" id="ShowAddResourcePageButton">Schedule Event</button>
+          <button onclick="ShowAccountOverviewPage()"  id="AccountOverviewButton">Show Pending Events</button>
+        </div>
+      </div>
+      <!-- END of Saving Page-->
+      
+       <!--BEGIN of Account Overview page-->
+        <div id="AccountOverview" class="row" style="display: none">
+          <div id="AccountDetailsHeader" class="medium-24 columns marg-top-20">
+            <div class="row">
+              <button class="medium-4 column" onclick="ShowAddResourcePage()"  id="ShowAddResourcePageButtonTOP">Schedule Event</button>
+              <div class="medium-16 column"></div>
+              <button class="medium-4 column" onclick="ShowContactCreate()" id="NewContactLink" >Add Another Contact</button>
+            </div>
+          </div>
+          <div class = "row">
+            <div class = "columns medium-24 marg-bottom-20">
+              <h2 class="alternate divide marg-top-20">Pending Closures</h2>
+              <select id="ClosureFilterMenu" class="medium-6 column" onchange="ShowSelectedClosures()">
+                <option value="All">All</option>
+                <option value="Approved">Approved</option>
+                <option value="Assigned">Assigned</option>
+                <option value="Canceled">Canceled</option>
+                <option value="Cancellation Requested">Cancellation Requested</option>
+                <option value="New">New</option>
+                <option value="Sent for Payment">Sent for Payment</option>
+              </select>
+            </div>
+            <div id="ClosureTable" class="row"></div>
+          </div>
+          <div class= "row">
+            <button onclick="ShowAddResourcePage()"  id="ShowAddResourcePageButton" class="marg-top-20 medium-4 column">Schedule Event</button>
+          </div>
+        </div>
+        <!-- END of Account Overview Page-->
+        
+        <!--BEGIN of Account & Contact Change Management page-->
+        <div id="AccContChngPage" class="large-16 columns" style="display: none">
+          <span id="AccContChngPageHeader">
+            <br>
+            <button onclick="ShowAddResourcePage()"  id="ShowAddResourcePageButtonTOP">Schedule Event</button>
+            <button onclick="ShowSelectedEvents(" + '"' + statusSelected + '"' + ")"  id="SelectedEvents">Filter Events</button>
+            <button onclick="ShowAccountOverviewPage()"  id="AccountOverviewButton">Show Pending Events</button>
+           
+            <ul id="AccContactTable" ></ul>
+           
+            <ul id="ContactList"></ul>
+          </span>
+          <select id="CompanySearchSelect" onchange="GetContactsForAccount()"></select>
+          <br>
+          <button onclick="ShowAddResourcePage()"  id="ShowAddResourcePageButton">Create a New Request</button>
+          <button onclick="ShowAccountOverviewPage()"  id="AccountOverviewButton">Go To Account Overview</button>
+        </div>
+        <!-- END of Account & Contact Change Management Page-->
+
+      <!-- Start of Add Event Page-->
+      <!-- Interface for creating Events, scheduling Resources-->
+      <div id="AddResourcePage" class="marg-top-20" style="display: none"  data-parsley-validate>
+        <div id="EventHeader" class="row marg-top-20">
+          <div class="medium-24 columns marg-top-20">
+            <div class = "row">
+              <h2 class="marg-top-20 alternate divide medium-24 columns">New Closure Information</h2>
+              <div id="EventTable" class="row"></div>
+            </div>
+          </div>
+          <div class="medium-24 columns"><label>Select Closure Location:</label></div>
+          <div class="medium-24 columns"><img src="images/map2.jpg"></div>
+          <div class="medium-12 columns"><label>Permit Type: </label>
+          <select>
+            <option value="Street Intersection">Street Intersection</option>
+            <option value="Street Section">Street Intersection</option>
+          </select></div>
+          <div class="medium-6 columns"><label>Effective Date: <input type="date" name="EventStartDate" id="ReqStart" data-parsley-group="eventCreate" data-parsely-type="date" required></label></div>
+          <div class="medium-6 columns"><label>Expiration Date: <input type="date" name="EventEndDate" id="ReqEnd" data-parsley-group="eventCreate" data-parsely-type="date" required></label></div>
+          <div class="medium-6 columns"><label>Time of Work: <input type="text" name="EventTime" id="ReqTime"></label></div>
+          <div class="medium-6 columns"><label>Purpose: <input type="text" name="EventDesc" id="ReqPurpose" data-parsley-group="eventCreate" required></label></div>
+          <div class="medium-12 columns"><label>Utility Owner: </label>
+          <select>
+            <option value="Cable">Cable</option>
+            <option value="Electric">Electric</option>
+            <option value="PGW">PGW</option>
+            <option value="Water">Water</option>
+          </select></div>
+          <div class="medium-24 columns"><label>Comments: <input type="text" name="EventLocation" id="ReqLocation" data-parsley-group="eventCreate" required></label></div>
+          <br><br>
+          <div class="medium-6 columns"><input type="checkbox">Water/Sewer Project</div>
+          <div class="medium-6 columns"><input type="checkbox">Repair Steam Main</div>
+          <div class="medium-6 columns"><input type="checkbox">Other Event</div>
+          <div class="medium-6 columns"><input type="checkbox">Equipment Delivery/Removal</div>
+          <div class="medium-6 columns"><input type="checkbox">Test Boring/Monitoring Wells</div>
+          <div class="medium-6 columns"><input type="checkbox">Repair Existing Conduit</div>
+          <div class="medium-6 columns"><input type="checkbox">Moving</div>
+          <div class="medium-6 columns"><input type="checkbox">Building Restoration</div>
+          <div class="medium-6 columns"><input type="checkbox">Street Restoration</div>
+          <div class="medium-6 columns"><input type="checkbox">Pull Thru Cable</div>
+          <div class="medium-6 columns"><input type="checkbox">Manhole Inspection</div>
+          <div class="medium-6 columns"><input type="checkbox">Building Demolition</div>
+          <div class="medium-6 columns"><input type="checkbox">PGW Project</div>
+          <div class="medium-6 columns"><input type="checkbox">Plumbers Project</div>
+          <div class="medium-6 columns"><input type="checkbox">Install New Conduit</div>
+          <div class="medium-6 columns"><input type="checkbox">SEPTA Project</div>
+          
+          <h2 class="marg-top-20 alternate divide medium-24 columns">Encroachments</h2>
+          <div class="medium-12 columns">
+            <select id="EncroachmentSelect">
+              <option value="Construction Fence">Construction Fence</option>
+              <option value="Moving Van">Moving Van</option>
+              <option value="Dumpster Placement">Dumpster Placement</option>
+              <option value="Portable Power Equipment">Portable Power Equipment</option>
+            </select>
+          </div>
+          <div class="medium-12 columns"><button onclick="AddEncroachment()">Add</button></div>
+          <div class="medium-24 columns"><table id="EncroachmentTable"><th></th><th>Type of Encroachment</th></table></div>
+        </div>
+        <div class="large-24 columns pad-25">
+          <button onclick="SubmitRequest()">Save Request</button>
+          <button onclick="ShowAccountOverviewPage()"  id="AccountOverviewButton">Cancel</button>
+        </div>
+      </div>
+      <!-- END of Add Resource Page -->
+    
+    
+    </div>
+    <!-- End #page -->
+    </div>
+    <!-- Begin footer -->
+    <footer class="site-footer" role="contentinfo">
+      <section class="fat">
+        <div class="row">
+          <div class="large-8 columns">
+            <h1>Government</h1>
+            <nav>
+              <ul>
+                <li><a href="http://alpha.phila.gov">alpha.phila.gov</a></li>
+                <li><a href="http://alpha.phila.gov/departments">Department Directory</a></li>
+                <li><a href="http://www.phila.gov/mayor">Mayor's Office</a></li>
+                <li><a href="http://iframe.publicstuff.com/#?client_id=242">Report an Issue / 311</a></li>
+                <li><a href="http://cityofphiladelphia.wordpress.com/">News</a></li>
+                <li><a href="http://www.phila.gov/phoneDir/">Phone Directory</a></li>
+              </ul>
+            </nav>
+          </div>
+          <div class="large-16 columns">
+            <h1>Browse alpha.phila.gov</h1>
+            <nav>
+              <ul class="columns-2">
+                <li><a href="http://alpha.phila.gov/browse/business">Business</a></li>
+                <li><a href="http://alpha.phila.gov/browse/health">Health</a></li>
+                <li><a href="http://alpha.phila.gov/browse/jobs-and-contracts">Jobs and Contracts</a></li>
+                <li><a href="http://alpha.phila.gov/browse/legal">Legal</a></li>
+                <li><a href="http://alpha.phila.gov/browse/payments-and-taxes">Payments and Taxes</a></li>
+                <li><a href="http://alpha.phila.gov/browse/permits-licenses">Permits and Licenses</a></li>
+                <li><a href="http://alpha.phila.gov/browse/property-housing">Property and Housing</a></li>
+                <li><a href="http://alpha.phila.gov/browse/public-safety">Public Safety</a></li>
+                <li><a href="http://alpha.phila.gov/browse/recreation">Recreation</a></li>
+                <li><a href="http://alpha.phila.gov/browse/streets-and-utilities">Streets and Utilities</a></li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </section>
+      <div class="row classic">
+        <div class="large-6 columns">
+          <a href="#">Feedback</a>
+        </div>
+        <div class="large-12 columns">
+          <nav>
+            <ul class="inline-list">
+              <li><a href="http://alpha.phila.gov/terms-of-use">Terms of use</a></li>
+              <li><a href="http://www.phila.gov/privacy/pdfs/FinalCityOpenRecords.pdf">Right to know (pdf)</a></li>
+              <li><a href="http://alpha.phila.gov/privacypolicy">Privacy Policy</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </footer>
+    <!-- End footer -->
+    
+    <script src="//cdnjs.cloudflare.com/ajax/libs/foundation/5.5.1/js/foundation.min.js"></script>
+    <script src="//cityofphiladelphia.github.io/patterns/dist/0.8.1/js/patterns.min.js"></script>
+    <script>
+      $(document).foundation();
+    </script>
+  </body>
+</html>

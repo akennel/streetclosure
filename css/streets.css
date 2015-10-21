@@ -1,0 +1,83 @@
+#ResourceTable {
+    /*Remove bullets from our table*/
+    list-style-type: none;
+}
+#AddResourcePage {
+    /*The alpha style pushes the last div over to the right column
+    This pushes it back to the left and makes it larger*/
+    /*float: left;
+    width: 75%;*/
+}
+#ContactList{
+    /*Remove bullets from our table*/
+    list-style-type: none;
+}
+.ContactRow{
+    width:75%;
+}
+.marg-top-20 {
+    margin-top:20px;
+}
+.details {
+    padding:2px;
+    margin-top:5px;
+}
+.GetCodeButton {
+    margin:10px 0;
+}
+#event-table p{
+    font-size: 80%;
+}
+#event-table h3{
+    margin-bottom: .2rem;
+}
+#AccountContactHeader p{
+    font-size: 80%;
+    margin: 0em 0;
+}
+
+#AppNameBanner{
+    margin-top: 22;
+}
+
+#AppNameBanner h2{
+    text-align: right;
+}
+
+.pad-25{
+    padding-top: 25px;
+}
+
+.marg-bottom-20{
+    padding-bottom: 20px;
+}
+.no-padding{
+    padding: 0 0 0 0;
+}
+
+.no-margin{
+    margin: 0 0 0 0;
+}
+/*Login screen, puts buttons to the right of the contact name in our LI rows*/
+.ContactName{
+    float:left;
+    width:50%;
+    vertical-align:bottom;
+}
+
+.background-color{
+    background:#f1f3f1;
+}
+.GetCodeButton{
+
+}
+
+.RemoveResourceButton{
+    margin-top: 20px;
+}
+#AccountDetails{
+    /*background-color: #FFFFDE;*/
+}
+#UserDetails{
+    /*background-color: #FFFFDE;*/
+}
